@@ -12,6 +12,8 @@
 |조혜창 멘토님|전체 프로젝트 멘토링|
 
 # Tweet - Music Recommendation Based on Tweet Sentiment Analysis
+<img width="655" alt="image" src="https://github.com/sw-twitter/tweet/assets/117340073/e3f53651-2f71-4480-acf0-1fdef72be4ee">
+
 
 ## 프로젝트 개요
 Tweet는 사용자의 트윗을 분석하여 감정을 파악하고, 이를 바탕으로 개인화된 노래를 추천하는 인공지능 프로젝트입니다. 이 프로젝트는 React, Material UI, Python 및 OpenAI의 ChatGPT를 사용하여 구현되었습니다.
