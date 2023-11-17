@@ -11,19 +11,16 @@ const App = () => {
   }, [messages]);
 
   const handleSendMessage = async (newMessage) => {
-
     setMessages(prevMessages => [...prevMessages, { text: newMessage, author: 'user' }]);
     console.log("After adding user message:", messages);
 
-
     try {
-
-      const response = await fetch('SERVER_ENDPOINT', {
+      const response = await fetch('/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: newMessage }),
+        body: JSON.stringify({ input: newMessage }), // Change this line
       });
 
       if (!response.ok) {
@@ -32,13 +29,10 @@ const App = () => {
 
       const data = await response.json();
 
-
       setMessages(messages => [...messages, { text: data.response, author: 'bot' }]);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
-
-
   };
   return (
     <Container component="main" maxWidth="sm">

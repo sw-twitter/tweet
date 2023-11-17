@@ -22,25 +22,16 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-df = df.dropna()
-df['column_name'] = df['column_name'].fillna('value')
-
 # Analysis and Visualization
 
-# Distribution of inbound and outbound tweets
-
-sns.countplot(x='inbound', data=df)
-plt.title('Distribution of Inbound and Outbound Tweets')
-plt.show()
-
 # Frequency of tweets over time
-
 df['created_at'] = pd.to_datetime(df['created_at'])
 df.set_index('created_at', inplace=True)
 df.resample('D').size().plot()
 plt.title('Tweet Frequency Over Time')
 plt.ylabel('Number of tweets')
 plt.show()
+
 
 # Top authors by tweet count
 
@@ -52,13 +43,7 @@ plt.xlabel('Author ID')
 plt.xticks(rotation=45)
 plt.show()
 
-# Visualize Response Time
 
-df['response_time'] = (df['response_created_at'] - df['created_at']).dt.total_seconds() / 60
-sns.boxplot(data=df, x='inbound', y='response_time')
-plt.title('Response Time Distribution')
-plt.ylabel('Response Time (minutes)')
-plt.show()
 
 
 # Sentiment Analysis
