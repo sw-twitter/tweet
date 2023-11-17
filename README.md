@@ -12,6 +12,8 @@
 |조혜창 멘토님|전체 프로젝트 멘토링|
 
 # Tweet - Music Recommendation Based on Tweet Sentiment Analysis
+<img width="655" alt="image" src="https://github.com/sw-twitter/tweet/assets/117340073/e3f53651-2f71-4480-acf0-1fdef72be4ee">
+
 
 ## 프로젝트 개요
 Tweet는 사용자의 트윗을 분석하여 감정을 파악하고, 이를 바탕으로 개인화된 노래를 추천하는 인공지능 프로젝트입니다. 이 프로젝트는 React, Material UI, Python 및 OpenAI의 ChatGPT를 사용하여 구현되었습니다.
@@ -36,3 +38,69 @@ Tweet는 사용자의 트윗을 분석하여 감정을 파악하고, 이를 바�
 2. **데이터 수집 및 전송**: Front-end는 이 정보를 Back-end로 전송합니다.
 3. **Back-end 처리**: 트윗을 수집하고, 감정 분석을 수행한 뒤, 적절한 음악을 추천합니다.
 4. **결과 전달**: 추천된 음악 목록이 Front-end를 통해 사용자에게 표시됩니다.
+
+## 감정분석 코딩 데이터 참고자료
+from google.colab import drive
+drive.mount('/content/drive')
+!pip install --upgrade openai
+!pip install tqdm requests
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import openai
+import requests
+from tqdm import tqdm
+import time
+openai.api_key = "INPUT YOUR API KEY"
+GPT_API_URL = "https://api.openai.com/v1/chat/completions"
+df =  pd.read_table('/content/drive/MyDrive/Colab_Notebooks/bab2min_corpus_master_sentiment_naver_shopping.txt', names=['Rating', 'Review Text'])
+df = df.iloc[0:200]
+df['Rating'].value_counts(normalize=True).sort_index()
+def analyze_review(review):
+
+  try:
+    messages = [
+            {"role": "system", "content": "너는 제품 리뷰에 담긴 고객 감정을 분석하고 탐지하는 AI 언어모델이야"},
+            {"role": "user", "content": f"다음 제품 리뷰를 분석해 고객 감정이 긍정인지 부정인지 판단해 알려줘. 대답은 다른 추가적인 설명없이 '긍정' 또는 '부정'  둘 중 하나의 단어로 대답해야 해: {review}"}
+        ]
+
+    completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            max_tokens=3,
+            n=1,
+            stop=None,
+            temperature=0
+        )
+
+    response= completion.choices[0].message.content
+    print(response)
+    return response
+
+  except openai.error.RateLimitError as e:
+    retry_time = e.retry_after if hasattr(e, 'retry_after') else 30
+    print(f"Rate limit exceeded. Retrying in {retry_time} seconds...")
+    time.sleep(retry_time)
+    return analyze_review(review)
+
+  except openai.error.ServiceUnavailableError as e:
+    retry_time = 10  # Adjust the retry time as needed
+    print(f"Service is unavailable. Retrying in {retry_time} seconds...")
+    time.sleep(retry_time)
+    return analyze_review(review)
+
+  except openai.error.APIError as e:
+    retry_time = e.retry_after if hasattr(e, 'retry_after') else 30
+    print(f"API error occurred. Retrying in {retry_time} seconds...")
+    time.sleep(retry_time)
+    return analyze_review(review)
+
+sentiments = []
+
+for review in tqdm(df["Review Text"]):
+    sentiment = analyze_review(review)
+    sentiments.append(sentiment)
+
+df["Sentiment"] = sentiments
+
+df.to_excel('/content/drive/MyDrive/Colab_Notebooks/reviews_analyzed_sentiment.xlsx', index=False)
